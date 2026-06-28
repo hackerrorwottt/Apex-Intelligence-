@@ -32,6 +32,9 @@ export default function VoiceOnboardingPage() {
   const [shouldAutoSubmit, setShouldAutoSubmit] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [pendingRisk, setPendingRisk] = useState<string | null>(null);
+  const [pendingCapital, setPendingCapital] = useState<number | null>(null);
+  const [pendingHorizon, setPendingHorizon] = useState<number | null>(null);
+  const [pendingExclusions, setPendingExclusions] = useState<string[] | null>(null);
   
   const listRef = useRef<HTMLDivElement | null>(null);
 
@@ -154,8 +157,8 @@ export default function VoiceOnboardingPage() {
         let multiplier = 1;
         if (lower.includes("lakh")) multiplier = 100000;
         if (lower.includes("crore")) multiplier = 10000000;
-        if (lower.includes("thousand") || lower.includes("k")) multiplier = 1000;
-        if (lower.includes("million") || lower.includes("m")) multiplier = 1000000;
+        if (lower.includes("thousand") || /\bk\b/.test(lower)) multiplier = 1000;
+        if (lower.includes("million") || /\bm\b/.test(lower)) multiplier = 1000000;
         
         let foundWord = false;
         const wordMap: Record<string, number> = { 
@@ -268,7 +271,7 @@ export default function VoiceOnboardingPage() {
       
       const lowerText = text.toLowerCase();
       
-      // Consent flow response
+      // Consent flow response for Risk
       if (pendingRisk) {
         if (lowerText.includes("yes") || lowerText.includes("sure") || lowerText.includes("ok") || lowerText.includes("do it")) {
            const updatedAnswers = { ...answers, risk_appetite: pendingRisk };
@@ -285,8 +288,82 @@ export default function VoiceOnboardingPage() {
            return;
         }
       }
+
+      // Consent flow response for Capital
+      if (pendingCapital !== null) {
+        if (pendingCapital === -1) {
+           // We asked "How much capital?", parse the response
+           let parsed: any = lowerText;
+           let multiplier = 1;
+           if (lowerText.includes("lakh")) multiplier = 100000;
+           if (lowerText.includes("crore")) multiplier = 10000000;
+           if (lowerText.includes("thousand") || /\bk\b/.test(lowerText)) multiplier = 1000;
+           if (lowerText.includes("million") || /\bm\b/.test(lowerText)) multiplier = 1000000;
+           const cleanString = parsed.replace(/,/g, '');
+           const m = cleanString.match(/([0-9\.]+)/);
+           if (m) {
+             const amt = Number(m[1]) * multiplier;
+             setPendingCapital(amt);
+             pushMessage({ role: "assistant", text: `I understand you want to change your capital to ₹${amt.toLocaleString('en-IN')}. Do you want me to re-balance your portfolio now? (Yes/No)`, isNew: true });
+             return;
+           } else {
+             setPendingCapital(null);
+             pushMessage({ role: "assistant", text: "I couldn't parse that amount. Capital update cancelled.", isNew: true });
+             return;
+           }
+        } else if (lowerText.includes("yes") || lowerText.includes("sure") || lowerText.includes("ok") || lowerText.includes("do it")) {
+           const updatedAnswers = { ...answers, capital: pendingCapital };
+           setAnswers(updatedAnswers);
+           setPendingCapital(null);
+           pushMessage({ role: "assistant", text: `Understood. Re-running the quantitative pipeline to generate a portfolio with ₹${pendingCapital.toLocaleString('en-IN')} capital...`, isNew: true });
+           submitProfileAndRun(updatedAnswers).then(() => {
+             pushMessage({ role: "assistant", text: "Your new portfolio is ready. All dashboards, backtesting, and risk centers have been instantly updated to reflect this new data! Please navigate to the Dashboard to see it.", isNew: true });
+           });
+           return;
+        } else {
+           setPendingCapital(null);
+           pushMessage({ role: "assistant", text: "Okay, I have cancelled the portfolio update.", isNew: true });
+           return;
+        }
+      }
+
+      // Consent flow response for Horizon
+      if (pendingHorizon !== null) {
+        if (lowerText.includes("yes") || lowerText.includes("sure") || lowerText.includes("ok") || lowerText.includes("do it")) {
+           const updatedAnswers = { ...answers, investment_horizon_years: pendingHorizon };
+           setAnswers(updatedAnswers);
+           setPendingHorizon(null);
+           pushMessage({ role: "assistant", text: `Understood. Re-running the quantitative pipeline with a ${pendingHorizon}-year horizon...`, isNew: true });
+           submitProfileAndRun(updatedAnswers).then(() => {
+             pushMessage({ role: "assistant", text: "Your new portfolio is ready. All dashboards have been instantly updated!", isNew: true });
+           });
+           return;
+        } else {
+           setPendingHorizon(null);
+           pushMessage({ role: "assistant", text: "Okay, I have cancelled the portfolio update.", isNew: true });
+           return;
+        }
+      }
+
+      // Consent flow response for Exclusions
+      if (pendingExclusions !== null) {
+        if (lowerText.includes("yes") || lowerText.includes("sure") || lowerText.includes("ok") || lowerText.includes("do it")) {
+           const updatedAnswers = { ...answers, excluded_sectors: [...(answers.excluded_sectors || []), ...pendingExclusions] };
+           setAnswers(updatedAnswers);
+           setPendingExclusions(null);
+           pushMessage({ role: "assistant", text: `Understood. Re-running the quantitative pipeline excluding: ${pendingExclusions.join(", ")}...`, isNew: true });
+           submitProfileAndRun(updatedAnswers).then(() => {
+             pushMessage({ role: "assistant", text: "Your new portfolio is ready. All dashboards have been instantly updated!", isNew: true });
+           });
+           return;
+        } else {
+           setPendingExclusions(null);
+           pushMessage({ role: "assistant", text: "Okay, I have cancelled the portfolio update.", isNew: true });
+           return;
+        }
+      }
       
-      // Intent detector for Rebalancing
+      // Intent detector for Rebalancing Risk
       let newRisk = null;
       if (lowerText.includes("aggressive") || lowerText.includes("more risk") || lowerText.includes("higher risk")) {
          newRisk = "Aggressive";
@@ -300,6 +377,60 @@ export default function VoiceOnboardingPage() {
           setPendingRisk(newRisk);
           pushMessage({ role: "assistant", text: `I understand you want to change your risk profile to ${newRisk}. Do you want me to re-balance your portfolio now? (Yes/No)`, isNew: true });
           return;
+      }
+
+      // Intent detector for Rebalancing Capital
+      let newCapital: number | null = null;
+      if ((lowerText.includes("capital") || lowerText.includes("money") || lowerText.includes("invest") || lowerText.includes("amount")) && (lowerText.match(/[0-9]/) || lowerText.includes("lakh") || lowerText.includes("crore") || lowerText.includes("thousand"))) {
+         let parsed: any = lowerText;
+         let multiplier = 1;
+         if (lowerText.includes("lakh")) multiplier = 100000;
+         if (lowerText.includes("crore")) multiplier = 10000000;
+         if (lowerText.includes("thousand") || /\bk\b/.test(lowerText)) multiplier = 1000;
+         if (lowerText.includes("million") || /\bm\b/.test(lowerText)) multiplier = 1000000;
+         const cleanString = parsed.replace(/,/g, '');
+         const m = cleanString.match(/([0-9\.]+)/);
+         if (m) newCapital = Number(m[1]) * multiplier;
+      }
+      
+      if (newCapital && newCapital !== answers.capital) {
+          setPendingCapital(newCapital);
+          pushMessage({ role: "assistant", text: `I understand you want to change your capital to ₹${newCapital.toLocaleString('en-IN')}. Do you want me to re-balance your portfolio now? (Yes/No)`, isNew: true });
+          return;
+      } else if (lowerText.includes("adjust") && (lowerText.includes("capital") || lowerText.includes("money") || lowerText.includes("amount"))) {
+          setPendingCapital(-1);
+          pushMessage({ role: "assistant", text: "How much capital would you like to allocate instead?", isNew: true });
+          return;
+      }
+
+      // Intent detector for Horizon
+      let newHorizon: number | null = null;
+      if (lowerText.includes("horizon") || lowerText.includes("time") || lowerText.includes("years") || lowerText.includes("duration")) {
+          const m = lowerText.match(/([0-9]+)\s*year/);
+          if (m) {
+              newHorizon = parseInt(m[1], 10);
+          } else {
+              const wordsToNum: any = { "one":1, "two":2, "three":3, "four":4, "five":5, "six":6, "seven":7, "eight":8, "nine":9, "ten":10, "fifteen":15, "twenty":20 };
+              for (const [w, n] of Object.entries(wordsToNum)) {
+                  if (lowerText.includes(`${w} year`)) { newHorizon = n as number; break; }
+              }
+          }
+          if (newHorizon) {
+             setPendingHorizon(newHorizon);
+             pushMessage({ role: "assistant", text: `I understand you want to change your investment horizon to ${newHorizon} years. Do you want me to re-balance your portfolio now? (Yes/No)`, isNew: true });
+             return;
+          }
+      }
+
+      // Intent detector for Exclusions
+      if (lowerText.includes("exclude") || lowerText.includes("remove") || lowerText.includes("don't want")) {
+          const sectors = ["it", "finance", "energy", "pharma", "fmcg", "auto", "bank", "metal", "tech", "technology"];
+          const found = sectors.filter(s => lowerText.match(new RegExp(`\\b${s}\\b`)));
+          if (found.length > 0) {
+              setPendingExclusions(found);
+              pushMessage({ role: "assistant", text: `I understand you want to exclude the ${found.join(", ")} sector(s) from your portfolio. Do you want me to re-balance your portfolio now? (Yes/No)`, isNew: true });
+              return;
+          }
       }
 
       setIsTyping(true);
@@ -340,6 +471,25 @@ export default function VoiceOnboardingPage() {
         setSessionId(sid);
         try {
           const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+          
+          // First, load the actual recommendation to populate answers state
+          const recRes = await fetch(`${API_BASE}/api/recommend/${sid}`);
+          if (recRes.ok) {
+            const data = await recRes.json();
+            if (data.recommendation && data.recommendation.investor_profile) {
+              const prof = data.recommendation.investor_profile;
+              setAnswers({
+                capital: prof.capital,
+                risk_appetite: prof.risk_appetite,
+                investment_horizon_years: parseInt(prof.horizon) || 5,
+                goal: prof.goal,
+                user_id: sid
+              });
+              setQIdx(QUESTIONS.length); // Skip onboarding questions
+            }
+          }
+
+          // Then, load chat history if it exists
           const res = await fetch(`${API_BASE}/api/chat/${sid}/history`);
           if (res.ok) {
             const historyData = await res.json();
@@ -350,16 +500,19 @@ export default function VoiceOnboardingPage() {
                 isNew: false
               }));
               setMessages(mapped);
-              setQIdx(QUESTIONS.length); // Skip onboarding questions
+              return;
+            } else if (recRes.ok) {
+              // We have a session but no chat history (e.g., from Quick Generate)
+              setMessages([{ role: "assistant", text: "I see you have an active portfolio. How would you like to adjust it? You can tell me to make it more aggressive, more conservative, or ask me questions about it.", isNew: true }]);
               return;
             }
           }
         } catch (e) {
-          console.error("Failed to load chat history", e);
+          console.error("Failed to load session data", e);
         }
       }
       
-      // Fallback to initial greeting if no history
+      // Fallback to initial greeting if no session at all
       const greeting = "Hello. I am your AI quantitative advisor. I will help you configure your investment profile. " + QUESTIONS[0].prompt;
       setMessages([
         { role: "assistant", text: greeting, isNew: true },

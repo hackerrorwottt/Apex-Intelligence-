@@ -45,7 +45,7 @@ export default function PortfolioPage() {
   const [recData, setRecData] = useState<any>(null);
 
   const [formCapital, setFormCapital] = useState("1000000");
-  const [formRisk, setFormRisk] = useState("moderate");
+  const [formRisk, setFormRisk] = useState("Moderate");
   const [formHorizon, setFormHorizon] = useState("5");
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -123,9 +123,9 @@ export default function PortfolioPage() {
             <div className="space-y-1.5">
               <label className="text-[12px] font-bold text-slate-700">Risk Appetite</label>
               <select value={formRisk} onChange={e => setFormRisk(e.target.value)} className="w-full px-4 py-2.5 rounded-[12px] border border-slate-200 text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0E8A5A]/20 bg-white">
-                <option value="conservative">Conservative (Min Volatility)</option>
-                <option value="moderate">Moderate (Balanced)</option>
-                <option value="aggressive">Aggressive (Max Return)</option>
+                <option value="Conservative">Conservative (Min Volatility)</option>
+                <option value="Moderate">Moderate (Balanced)</option>
+                <option value="Aggressive">Aggressive (Max Return)</option>
               </select>
             </div>
             <div className="space-y-1.5">

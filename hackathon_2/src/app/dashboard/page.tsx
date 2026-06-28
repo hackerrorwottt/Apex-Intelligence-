@@ -164,9 +164,9 @@ export default function DashboardPage() {
               });
             }
             
-            if (rec.allocation && rec.allocation.weights_pct) {
+            if (rec.allocation && Object.keys(rec.allocation).length > 0) {
               const colors = ["#0E8A5A", "#0F172A", "#3B82F6", "#F59E0B", "#8B5CF6", "#10B981", "#ef4444", "#8b5cf6", "#f43f5e", "#06b6d4"];
-              const newAllocs = Object.entries(rec.allocation.weights_pct).map(([name, value], i) => ({
+              const newAllocs = Object.entries(rec.allocation).map(([name, value], i) => ({
                 name,
                 value: Number((value as number).toFixed(1)),
                 color: colors[i % colors.length],

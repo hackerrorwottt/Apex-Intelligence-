@@ -151,17 +151,11 @@ class DecisionIntelligenceEngine:
             formatted_fundamentals[t] = {"valuation": val, "sentiment": sent}
 
         recommendation = {
+            "investor_profile": profile.dict(),
             "expected_return": round(opt_result["expected_annual_return_pct"], 2),
             "volatility": round(risk_result.get("portfolio_volatility_pct", 0.0), 2),
             "allocation": {k: round(v / 100, 4) for k, v in weights_pct.items()},
-            "risk": {
-                "sharpe_ratio": round(risk_result.get("sharpe_ratio", 0.0), 2),
-                "sortino_ratio": round(risk_result.get("sortino_ratio", 0.0), 2),
-                "beta": round(risk_result.get("portfolio_beta", 1.0), 2),
-                "var_95": round(risk_result.get("value_at_risk_95_pct", 0.0), 2),
-                "max_drawdown": round(risk_result.get("max_drawdown_pct", 0.0), 2) if "max_drawdown_pct" in risk_result else 15.0,
-                "volatility": round(risk_result.get("portfolio_volatility_pct", 0.0), 2),
-            },
+            "risk": risk_result,
             "fundamentals": formatted_fundamentals,
             "confidence": round(
                 sum(p["confidence_score"] for p in opt_result["ml_predictions_used"].values())

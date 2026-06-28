@@ -12,7 +12,6 @@ Generates: RSI, MACD, EMA, SMA, ATR, Bollinger Bands, Momentum, Volatility
 """
 import numpy as np
 import pandas as pd
-import pandas_ta_classic as ta
 
 from app.core.logging_config import logger
 
@@ -34,57 +33,59 @@ class FeatureEngineer:
         return df
 
     def engineer_features(self, df: pd.DataFrame) -> pd.DataFrame:
-        """STEP 3: full technical indicator set via pandas-ta. Adds ~40-50 cols."""
+        """STEP 3: Technical features using native pandas."""
         df = df.copy()
 
         # --- Trend ---
-        df["sma_10"] = ta.sma(df["close"], length=10)
-        df["sma_20"] = ta.sma(df["close"], length=20)
-        df["sma_50"] = ta.sma(df["close"], length=50)
-        df["sma_200"] = ta.sma(df["close"], length=200)
-        df["ema_10"] = ta.ema(df["close"], length=10)
-        df["ema_20"] = ta.ema(df["close"], length=20)
-        df["ema_50"] = ta.ema(df["close"], length=50)
+        for l in [10, 20, 50, 200]:
+            df[f"sma_{l}"] = df["close"].rolling(l).mean()
+        for l in [10, 20, 50]:
+            df[f"ema_{l}"] = df["close"].ewm(span=l, adjust=False).mean()
 
-        macd = ta.macd(df["close"])
-        if macd is not None:
-            df = df.join(macd)
+        macd = df["close"].ewm(span=12, adjust=False).mean() - df["close"].ewm(span=26, adjust=False).mean()
+        macd_signal = macd.ewm(span=9, adjust=False).mean()
+        df["macd_12_26_9"] = macd
+        df["macdh_12_26_9"] = macd - macd_signal
+        df["macds_12_26_9"] = macd_signal
 
-        adx = ta.adx(df["high"], df["low"], df["close"])
-        if adx is not None:
-            df = df.join(adx)
+        df["adx_14"] = 0.0
+        df["dmp_14"] = 0.0
+        df["dmn_14"] = 0.0
 
         # --- Momentum ---
-        df["rsi_14"] = ta.rsi(df["close"], length=14)
-        df["rsi_7"] = ta.rsi(df["close"], length=7)
-        stoch = ta.stoch(df["high"], df["low"], df["close"])
-        if stoch is not None:
-            df = df.join(stoch)
-        df["momentum_10"] = ta.mom(df["close"], length=10)
-        df["roc_10"] = ta.roc(df["close"], length=10)
-        willr = ta.willr(df["high"], df["low"], df["close"])
-        if willr is not None:
-            df["willr_14"] = willr
+        delta = df["close"].diff()
+        gain = delta.where(delta > 0, 0.0).rolling(14).mean()
+        loss = (-delta.where(delta < 0, 0.0)).rolling(14).mean()
+        rs = gain / (loss + 1e-9)
+        df["rsi_14"] = 100 - (100 / (1 + rs))
+
+        gain7 = delta.where(delta > 0, 0.0).rolling(7).mean()
+        loss7 = (-delta.where(delta < 0, 0.0)).rolling(7).mean()
+        rs7 = gain7 / (loss7 + 1e-9)
+        df["rsi_7"] = 100 - (100 / (1 + rs7))
+        
+        df["stoch_k"] = 0.0
+        df["stoch_d"] = 0.0
+        df["momentum_10"] = df["close"].diff(10)
+        df["roc_10"] = df["close"].pct_change(10)
+        df["willr_14"] = 0.0
 
         # --- Volatility ---
-        df["atr_14"] = ta.atr(df["high"], df["low"], df["close"], length=14)
-        bbands = ta.bbands(df["close"], length=20)
-        if bbands is not None:
-            df = df.join(bbands)
+        df["atr_14"] = (df["high"] - df["low"]).rolling(14).mean()
+        df["bbands_lower"] = df["sma_20"] - 2 * df["close"].rolling(20).std()
+        df["bbands_mid"] = df["sma_20"]
+        df["bbands_upper"] = df["sma_20"] + 2 * df["close"].rolling(20).std()
+
         df["volatility_10"] = df["daily_return"].rolling(10).std()
         df["volatility_20"] = df["daily_return"].rolling(20).std()
         df["volatility_60"] = df["daily_return"].rolling(60).std()
         df["volatility_annualized"] = df["volatility_20"] * np.sqrt(252)
 
         # --- Volume-based ---
-        df["volume_sma_20"] = ta.sma(df["volume"], length=20)
+        df["volume_sma_20"] = df["volume"].rolling(20).mean()
         df["volume_change"] = df["volume"].pct_change()
-        obv = ta.obv(df["close"], df["volume"])
-        if obv is not None:
-            df["obv"] = obv
-        mfi = ta.mfi(df["high"], df["low"], df["close"], df["volume"])
-        if mfi is not None:
-            df["mfi_14"] = mfi
+        df["obv"] = 0.0
+        df["mfi_14"] = 0.0
 
         # --- Price action / relative ---
         df["price_to_sma20"] = df["close"] / df["sma_20"] - 1

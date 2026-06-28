@@ -117,6 +117,14 @@ def _build_prompt(recommendation: dict, question: Optional[str] = None, history:
     risk_label = recommendation.get("risk_label", "Moderate")
 
     rag_text = "No RAG evidence retrieved."
+    if question:
+        try:
+            from app.engines.rag_engine import rag_engine
+            rag_results = rag_engine.search(question, top_k=3)
+            if rag_results:
+                rag_text = "\n\n".join([f"Source: {r['source']}\n{r['text']}" for r in rag_results])
+        except Exception as e:
+            logger.warning(f"Failed to fetch RAG context: {e}")
 
     fund_text = json.dumps(fundamentals, indent=2) if fundamentals else "{}"
     alloc_text = json.dumps(alloc, indent=2) if alloc else "{}"

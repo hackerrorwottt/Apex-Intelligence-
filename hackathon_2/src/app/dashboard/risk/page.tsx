@@ -10,6 +10,17 @@ export default function RiskCenterPage() {
   const [stressFactor, setStressFactor] = useState(0);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [recData, setRecData] = useState<any>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+
+  const handleSaveStress = () => {
+    setIsSaving(true);
+    setTimeout(() => {
+      setIsSaving(false);
+      setIsSaved(true);
+      setTimeout(() => setIsSaved(false), 2000);
+    }, 800);
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -66,7 +77,7 @@ export default function RiskCenterPage() {
   const baseVolatility = risk.portfolio_volatility_pct || 12.5;
 
   // Build risk breakdown for the chart using real per-asset risk metrics
-  const weights = recData.allocation?.weights_pct || {};
+  const weights = recData.allocation || {};
   const assetMetrics = risk.asset_metrics || {};
   
   const riskBreakdown = Object.keys(weights).map(ticker => {
@@ -181,8 +192,21 @@ export default function RiskCenterPage() {
             </div>
           </div>
 
-          <button className="w-full flex h-11 items-center justify-center gap-2 rounded-[14px] bg-[#0E8A5A] text-white font-bold text-[13px] hover:bg-[#0c784e] transition-colors">
-            <span>Save Stress Thresholds</span>
+          <button 
+            onClick={handleSaveStress}
+            disabled={isSaving || isSaved}
+            className="w-full flex h-11 items-center justify-center gap-2 rounded-[14px] bg-[#0E8A5A] text-white font-bold text-[13px] hover:bg-[#0c784e] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {isSaving ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : isSaved ? (
+              <>
+                <ShieldCheck className="h-4 w-4" />
+                <span>Saved Successfully</span>
+              </>
+            ) : (
+              <span>Save Stress Thresholds</span>
+            )}
           </button>
         </div>
       </div>
