@@ -31,6 +31,7 @@ export default function VoiceOnboardingPage() {
   const [voiceMuted, setVoiceMuted] = useState(false);
   const [shouldAutoSubmit, setShouldAutoSubmit] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [pendingRisk, setPendingRisk] = useState<string | null>(null);
   
   const listRef = useRef<HTMLDivElement | null>(null);
 
@@ -264,6 +265,43 @@ export default function VoiceOnboardingPage() {
          pushMessage({ role: "assistant", text: "I'm sorry, I don't have a portfolio session to reference. Please run the profile builder first.", isNew: true });
          return;
       }
+      
+      const lowerText = text.toLowerCase();
+      
+      // Consent flow response
+      if (pendingRisk) {
+        if (lowerText.includes("yes") || lowerText.includes("sure") || lowerText.includes("ok") || lowerText.includes("do it")) {
+           const updatedAnswers = { ...answers, risk_appetite: pendingRisk };
+           setAnswers(updatedAnswers);
+           setPendingRisk(null);
+           pushMessage({ role: "assistant", text: `Understood. Re-running the quantitative pipeline to generate an ${pendingRisk} portfolio...`, isNew: true });
+           submitProfileAndRun(updatedAnswers).then(() => {
+             pushMessage({ role: "assistant", text: "Your new portfolio is ready. All dashboards, backtesting, and risk centers have been instantly updated to reflect this new data! Please navigate to the Dashboard to see it.", isNew: true });
+           });
+           return;
+        } else {
+           setPendingRisk(null);
+           pushMessage({ role: "assistant", text: "Okay, I have cancelled the portfolio update.", isNew: true });
+           return;
+        }
+      }
+      
+      // Intent detector for Rebalancing
+      let newRisk = null;
+      if (lowerText.includes("aggressive") || lowerText.includes("more risk") || lowerText.includes("higher risk")) {
+         newRisk = "Aggressive";
+      } else if (lowerText.includes("conservative") || lowerText.includes("less risk") || lowerText.includes("lower risk") || lowerText.includes("safe")) {
+         newRisk = "Conservative";
+      } else if (lowerText.includes("moderate") || lowerText.includes("medium risk")) {
+         newRisk = "Moderate";
+      }
+      
+      if (newRisk && newRisk !== answers.risk_appetite) {
+          setPendingRisk(newRisk);
+          pushMessage({ role: "assistant", text: `I understand you want to change your risk profile to ${newRisk}. Do you want me to re-balance your portfolio now? (Yes/No)`, isNew: true });
+          return;
+      }
+
       setIsTyping(true);
       try {
         const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -295,10 +333,40 @@ export default function VoiceOnboardingPage() {
 
   useEffect(() => {
     setMounted(true);
-    const greeting = "Hello. I am your AI quantitative advisor. I will help you configure your investment profile. " + QUESTIONS[0].prompt;
-    setMessages([
-      { role: "assistant", text: greeting, isNew: true },
-    ]);
+    
+    const loadHistory = async () => {
+      const sid = localStorage.getItem("apex_session_id");
+      if (sid) {
+        setSessionId(sid);
+        try {
+          const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+          const res = await fetch(`${API_BASE}/api/chat/${sid}/history`);
+          if (res.ok) {
+            const historyData = await res.json();
+            if (historyData && historyData.length > 0) {
+              const mapped = historyData.map((m: any) => ({
+                role: m.role,
+                text: m.content,
+                isNew: false
+              }));
+              setMessages(mapped);
+              setQIdx(QUESTIONS.length); // Skip onboarding questions
+              return;
+            }
+          }
+        } catch (e) {
+          console.error("Failed to load chat history", e);
+        }
+      }
+      
+      // Fallback to initial greeting if no history
+      const greeting = "Hello. I am your AI quantitative advisor. I will help you configure your investment profile. " + QUESTIONS[0].prompt;
+      setMessages([
+        { role: "assistant", text: greeting, isNew: true },
+      ]);
+    };
+    
+    loadHistory();
   }, []);
 
   // Handle auto-submit from speech end

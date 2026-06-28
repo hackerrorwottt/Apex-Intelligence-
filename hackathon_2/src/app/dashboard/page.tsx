@@ -27,6 +27,7 @@ import {
   TrendingDown,
   Sparkles,
   ChevronRight,
+  Loader2,
 } from "lucide-react";
 import {
   ScatterChart,
@@ -115,6 +116,12 @@ export default function DashboardPage() {
   const [chatInput, setChatInput] = useState("");
   const [isChatTyping, setIsChatTyping] = useState(false);
 
+  // Dynamic Hooks for Backtest & Explanation
+  const [backtestDataList, setBacktestDataList] = useState<any[]>(backtestData);
+  const [backtestMetrics, setBacktestMetrics] = useState({ cagr: "18%", maxDrawdown: "10%", winRate: "69%" });
+  const [isFetchingBacktest, setIsFetchingBacktest] = useState(false);
+  const [explanation, setExplanation] = useState<string>("");
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -148,6 +155,15 @@ export default function DashboardPage() {
             if (rec.volatility !== undefined) setVolatility(`${rec.volatility}%`);
             if (rec.confidence !== undefined) setConfidenceScore(`${rec.confidence}%`);
             
+            if (json.explanation) setExplanation(json.explanation);
+
+            if (rec.volatility !== undefined && rec.expected_return !== undefined) {
+              setFrontierPoints({
+                current: [{ x: 11.4, y: 11.2, name: "Current Portfolio" }],
+                optimized: [{ x: rec.volatility, y: rec.expected_return, name: "Optimized Portfolio" }],
+              });
+            }
+            
             if (rec.allocation && rec.allocation.weights_pct) {
               const colors = ["#0E8A5A", "#0F172A", "#3B82F6", "#F59E0B", "#8B5CF6", "#10B981", "#ef4444", "#8b5cf6", "#f43f5e", "#06b6d4"];
               const newAllocs = Object.entries(rec.allocation.weights_pct).map(([name, value], i) => ({
@@ -163,6 +179,32 @@ export default function DashboardPage() {
               }));
               setAllocations(newAllocs);
             }
+
+            // Async trigger backtest
+            setIsFetchingBacktest(true);
+            fetch(`${API_BASE}/api/backtest/${sid}`, { method: "POST" })
+              .then(r => r.json())
+              .then(btData => {
+                 if (btData.backtest) {
+                    if (btData.backtest.equity_curve) {
+                        const curve = btData.backtest.equity_curve;
+                        const bench = btData.backtest.benchmark_curve;
+                        const newCurve = Object.keys(curve).map(date => ({
+                           year: date.substring(0, 7), // YYYY-MM
+                           Portfolio: Math.round(curve[date]),
+                           Nifty: bench ? Math.round(bench[date]) : 100,
+                        }));
+                        setBacktestDataList(newCurve);
+                    }
+                    setBacktestMetrics({
+                       cagr: `${btData.backtest.portfolio_cagr_pct}%`,
+                       maxDrawdown: `${btData.backtest.portfolio_max_drawdown_pct}%`,
+                       winRate: `${btData.backtest.portfolio_win_rate_pct}%`
+                    });
+                 }
+              })
+              .catch(err => console.error("Backtest fetch failed", err))
+              .finally(() => setIsFetchingBacktest(false));
           }
         } catch (e) {
           console.error("Failed to load dashboard data", e);
@@ -451,18 +493,24 @@ export default function DashboardPage() {
             <p className="text-[11px] font-semibold text-slate-400">Compound performance comparisons (2019-Today) driven by vectorbt backend models.</p>
           </div>
 
-          <div className="h-60 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={backtestData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <XAxis dataKey="year" tick={{ fill: "#94a3b8", fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: "#94a3b8", fontSize: 10 }} axisLine={false} tickLine={false} unit="%" />
-                <Tooltip contentStyle={{ backgroundColor: "#0F172A", border: "none", borderRadius: "10px" }} labelStyle={{ color: "#94a3b8", fontWeight: "bold", fontSize: 10 }} itemStyle={{ color: "#fff", fontWeight: "bold", fontSize: 11 }} />
-                <Legend verticalAlign="top" height={36} iconType="circle" />
-                <Line type="monotone" dataKey="Portfolio" stroke="#0E8A5A" strokeWidth={2.5} activeDot={{ r: 6 }} name="Portfolio Strategy (+93%)" />
-                <Line type="monotone" dataKey="Nifty" stroke="#94a3b8" strokeWidth={1.5} name="Nifty Index (+71%)" />
-                <Line type="monotone" dataKey="Sensex" stroke="#3B82F6" strokeWidth={1.5} strokeDasharray="3 3" name="Sensex Index (+68%)" />
-              </LineChart>
-            </ResponsiveContainer>
+          <div className="h-60 w-full relative flex items-center justify-center">
+            {isFetchingBacktest ? (
+               <div className="flex flex-col items-center gap-3 text-slate-400">
+                 <Loader2 className="h-6 w-6 animate-spin text-[#0E8A5A]" />
+                 <span className="text-[11px] font-bold tracking-widest uppercase">Simulating VectorBT Models...</span>
+               </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={backtestDataList} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="year" tick={{ fill: "#94a3b8", fontSize: 10 }} axisLine={false} tickLine={false} minTickGap={30} />
+                  <YAxis tick={{ fill: "#94a3b8", fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={{ backgroundColor: "#0F172A", border: "none", borderRadius: "10px" }} labelStyle={{ color: "#94a3b8", fontWeight: "bold", fontSize: 10 }} itemStyle={{ color: "#fff", fontWeight: "bold", fontSize: 11 }} />
+                  <Legend verticalAlign="top" height={36} iconType="circle" />
+                  <Line type="monotone" dataKey="Portfolio" stroke="#0E8A5A" strokeWidth={2.5} activeDot={{ r: 6 }} dot={false} name="Portfolio Strategy" />
+                  <Line type="monotone" dataKey="Nifty" stroke="#94a3b8" strokeWidth={1.5} dot={false} name="Nifty Index" />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
@@ -476,15 +524,15 @@ export default function DashboardPage() {
           <div className="divide-y divide-slate-100 text-[12px] font-semibold text-slate-600 space-y-3.5 pt-4">
             <div className="flex justify-between items-center pb-2">
               <span className="text-slate-400">CAGR</span>
-              <span className="font-extrabold text-slate-700 text-sm">18%</span>
+              <span className="font-extrabold text-slate-700 text-sm">{backtestMetrics.cagr}</span>
             </div>
             <div className="flex justify-between items-center pt-2 pb-2">
               <span className="text-slate-400">Maximum Expected Drawdown</span>
-              <span className="font-extrabold text-red-500">10%</span>
+              <span className="font-extrabold text-red-500">{backtestMetrics.maxDrawdown}</span>
             </div>
             <div className="flex justify-between items-center pt-2">
               <span className="text-slate-400">Win Rate</span>
-              <span className="font-extrabold text-[#0E8A5A]">69%</span>
+              <span className="font-extrabold text-[#0E8A5A]">{backtestMetrics.winRate}</span>
             </div>
           </div>
 
@@ -753,14 +801,10 @@ export default function DashboardPage() {
                 </button>
               </div>
 
-              <div className="space-y-4 text-[12px] font-semibold text-slate-500">
-                <h4 className="text-[14px] font-extrabold text-slate-800">Why 30% TCS Allocation?</h4>
-                <div className="space-y-2 font-mono bg-slate-50 p-3 rounded-lg border border-slate-100 text-slate-600">
-                  <div className="flex justify-between"><span>Predicted ARR Return:</span><span className="font-bold text-[#0E8A5A]">14%</span></div>
-                  <div className="flex justify-between"><span>Covariance Factor:</span><span className="font-bold text-slate-700">Low Correlation</span></div>
-                  <div className="flex justify-between"><span>Capital ROE:</span><span className="font-bold text-slate-700">High Return on Equity</span></div>
-                  <div className="flex justify-between"><span>Momentum Index:</span><span className="font-bold text-[#0E8A5A]">Strong Momentum</span></div>
-                  <div className="flex justify-between text-[11px] pt-1 text-slate-500 border-t border-slate-200"><span>RAG Grounding:</span><span>TCS Annual Q4 Report Validated ✓</span></div>
+              <div className="space-y-4 text-[12px] font-semibold text-slate-500 max-h-[60vh] overflow-y-auto">
+                <h4 className="text-[14px] font-extrabold text-slate-800">Dynamic AI Explanation</h4>
+                <div className="space-y-2 font-mono bg-slate-50 p-3 rounded-lg border border-slate-100 text-slate-600 whitespace-pre-wrap leading-relaxed text-[11px]">
+                  {explanation || "Generating explanation..."}
                 </div>
               </div>
             </motion.div>

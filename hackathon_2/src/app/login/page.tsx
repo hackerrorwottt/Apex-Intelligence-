@@ -35,11 +35,7 @@ export default function LoginPage() {
   if (!mounted) return null;
 
   const handleSuccessRedirect = () => {
-    if (flow === "open-account") {
-      router.push("/dashboard/advisor");
-    } else {
-      router.push("/dashboard");
-    }
+    router.push("/dashboard/advisor");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

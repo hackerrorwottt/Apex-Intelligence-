@@ -101,16 +101,40 @@ class PortfolioOptimizationEngine:
 
         risk_aversion = self.RISK_AVERSION_MAP[profile.risk_appetite]
 
-        ef = EfficientFrontier(mu, S, weight_bounds=(0, 0.40))  # cap any single asset at 40%
+        # Dynamic weight bounds based on Risk Appetite
+        if profile.risk_appetite == RiskAppetite.conservative:
+            max_weight = 0.15
+        elif profile.risk_appetite == RiskAppetite.moderate:
+            max_weight = 0.25
+        else:
+            max_weight = 0.40
+
+        ef = EfficientFrontier(mu, S, weight_bounds=(0, max_weight))
+        
+        # Horizon constraints
+        if profile.investment_horizon_years and profile.investment_horizon_years < 3:
+            # Short horizon -> Force minimum 20% in Gold or NiftyBees as safe haven if available
+            safe_assets = [t for t in tickers if t in settings.ETF_UNIVERSE]
+            for asset in safe_assets:
+                # Force at least 10% into each safe asset, up to 20% max total if 2
+                idx = ef.tickers.index(asset)
+                ef.add_constraint(lambda w: w[idx] >= 0.10)
+        
         try:
             if profile.risk_appetite == RiskAppetite.conservative:
                 ef.add_objective(lambda w: 0)  # no-op placeholder for clarity
                 weights = ef.min_volatility()
+            elif profile.risk_appetite == RiskAppetite.moderate:
+                from pypfopt import objective_functions
+                # Spread out weights slightly for moderate
+                ef.add_objective(objective_functions.L2_reg, gamma=0.1)
+                weights = ef.max_sharpe(risk_free_rate=settings.RISK_FREE_RATE)
             else:
+                # Aggressive goes all out for max sharpe without regularizer
                 weights = ef.max_sharpe(risk_free_rate=settings.RISK_FREE_RATE)
         except OptimizationError as e:
             logger.warning(f"[PortfolioOpt] optimization failed ({e}), falling back to min volatility")
-            ef = EfficientFrontier(mu, S, weight_bounds=(0, 0.40))
+            ef = EfficientFrontier(mu, S, weight_bounds=(0, max_weight))
             weights = ef.min_volatility()
 
         cleaned_weights = ef.clean_weights(cutoff=0.01, rounding=4)

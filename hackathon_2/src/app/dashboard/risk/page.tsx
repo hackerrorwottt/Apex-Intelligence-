@@ -65,34 +65,19 @@ export default function RiskCenterPage() {
   const riskLabel = risk.risk_label || "Moderate";
   const baseVolatility = risk.portfolio_volatility_pct || 12.5;
 
-  // Build simulated breakdown for the chart using actual weights and fundamentals sentiment as proxy
+  // Build risk breakdown for the chart using real per-asset risk metrics
   const weights = recData.allocation?.weights_pct || {};
-  const fundamentals = recData.fundamentals || {};
+  const assetMetrics = risk.asset_metrics || {};
   
   const riskBreakdown = Object.keys(weights).map(ticker => {
-    // Generate some simulated per-asset risk based on sentiment for visualization
-    const sentiment = fundamentals[ticker]?.sentiment || "Neutral";
-    let volProxy = 10;
-    let betaProxy = 1.0;
-    
-    if (sentiment === "Bullish") {
-        volProxy = 14.5;
-        betaProxy = 1.2;
-    } else if (sentiment === "Bearish") {
-        volProxy = 18.0;
-        betaProxy = -0.5;
-    } else {
-        volProxy = 8.5;
-        betaProxy = 0.8;
-    }
-    
-    // Add some noise based on weight to make it look realistic
-    const noise = (weights[ticker] % 5);
+    // Read real values from the backend, fallback to proxy if backend isn't ready
+    const realVol = assetMetrics[ticker]?.volatility_pct;
+    const realBeta = assetMetrics[ticker]?.beta;
     
     return {
       name: ticker,
-      Volatility: parseFloat((volProxy + noise).toFixed(1)),
-      Beta: parseFloat((betaProxy + (noise / 10)).toFixed(2))
+      Volatility: realVol !== undefined ? realVol : 12.0,
+      Beta: realBeta !== undefined ? realBeta : 1.0,
     };
   });
 

@@ -44,6 +44,11 @@ export default function PortfolioPage() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [recData, setRecData] = useState<any>(null);
 
+  const [formCapital, setFormCapital] = useState("1000000");
+  const [formRisk, setFormRisk] = useState("moderate");
+  const [formHorizon, setFormHorizon] = useState("5");
+  const [isGenerating, setIsGenerating] = useState(false);
+
   useEffect(() => {
     setMounted(true);
     const sid = localStorage.getItem("apex_session_id");
@@ -63,25 +68,80 @@ export default function PortfolioPage() {
 
   if (!mounted) return null;
 
+  const handleQuickGenerate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsGenerating(true);
+    try {
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      // Generate a new random session ID to isolate this quick build
+      const newSessionId = crypto.randomUUID();
+      const res = await fetch(`${API_BASE}/api/recommend`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: newSessionId,
+          capital: parseInt(formCapital),
+          risk_appetite: formRisk,
+          investment_horizon_years: parseInt(formHorizon),
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem("apex_session_id", newSessionId);
+        setSessionId(newSessionId);
+        setRecData(data.recommendation);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   if (!sessionId || !recData) {
     return (
       <div className="space-y-8 max-w-7xl mx-auto w-full pb-16 animate-in fade-in duration-200">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0F172A]">Portfolio Builder</h1>
           <p className="text-[13px] font-semibold text-slate-400 mt-1">
-            Rebalance and optimize your asset allocations.
+            Build your optimal asset allocation instantly.
           </p>
         </div>
         
-        <div className="bg-white rounded-[18px] border border-slate-200 p-12 text-center shadow-soft mt-8 flex flex-col items-center justify-center">
+        <div className="bg-white rounded-[18px] border border-slate-200 p-8 sm:p-12 shadow-soft mt-8 flex flex-col items-center">
           <Bot className="h-16 w-16 text-slate-200 mb-4" />
           <h2 className="text-xl font-bold text-slate-800 mb-2">No Active Portfolio Found</h2>
-          <p className="text-slate-500 font-semibold max-w-md mx-auto mb-6">
-            You haven't built a customized portfolio yet. Talk to the AI Advisor to complete your onboarding and generate your optimized allocation.
+          <p className="text-slate-500 font-semibold max-w-md mx-auto text-center mb-8">
+            Talk to the AI Advisor for a guided onboarding, or use the Quick Builder below to instantly generate an optimal mandate.
           </p>
-          <Link href="/dashboard/advisor" className="px-6 py-3 bg-[#0E8A5A] text-white rounded-[14px] font-bold text-[14px] hover:bg-[#0c784e] flex items-center gap-2 transition-colors">
-            Go to AI Advisor <ArrowRight className="h-4 w-4" />
-          </Link>
+          
+          <form onSubmit={handleQuickGenerate} className="w-full max-w-md space-y-5 bg-slate-50 p-6 rounded-[16px] border border-slate-100">
+            <div className="space-y-1.5">
+              <label className="text-[12px] font-bold text-slate-700">Initial Capital (₹)</label>
+              <input type="number" value={formCapital} onChange={e => setFormCapital(e.target.value)} required className="w-full px-4 py-2.5 rounded-[12px] border border-slate-200 text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0E8A5A]/20" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[12px] font-bold text-slate-700">Risk Appetite</label>
+              <select value={formRisk} onChange={e => setFormRisk(e.target.value)} className="w-full px-4 py-2.5 rounded-[12px] border border-slate-200 text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0E8A5A]/20 bg-white">
+                <option value="conservative">Conservative (Min Volatility)</option>
+                <option value="moderate">Moderate (Balanced)</option>
+                <option value="aggressive">Aggressive (Max Return)</option>
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[12px] font-bold text-slate-700">Horizon (Years)</label>
+              <select value={formHorizon} onChange={e => setFormHorizon(e.target.value)} className="w-full px-4 py-2.5 rounded-[12px] border border-slate-200 text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0E8A5A]/20 bg-white">
+                <option value="1">Short Term (1 Year)</option>
+                <option value="3">Medium Term (3 Years)</option>
+                <option value="5">Long Term (5 Years)</option>
+                <option value="10">Very Long Term (10+ Years)</option>
+              </select>
+            </div>
+            <button type="submit" disabled={isGenerating} className="w-full py-3 bg-[#0E8A5A] text-white rounded-[12px] font-bold text-[14px] hover:bg-[#0c784e] flex items-center justify-center gap-2 transition-colors mt-2">
+              {isGenerating ? <><Loader2 className="h-4 w-4 animate-spin"/> Generating...</> : "Quick Generate"}
+            </button>
+          </form>
+
         </div>
       </div>
     );

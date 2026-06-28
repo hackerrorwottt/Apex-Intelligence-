@@ -45,22 +45,30 @@ export default function BacktestPage() {
         const bt = json.backtest;
         
         // Transform the backend timeseries data into Recharts format
-        if (bt.timeseries) {
-          const dates = Object.keys(bt.timeseries);
+        if (bt.equity_curve) {
+          const dates = Object.keys(bt.equity_curve);
           const newChartData = dates.map(d => ({
             date: new Date(d).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-            "Portfolio Value": bt.timeseries[d],
+            "Portfolio Value": bt.equity_curve[d],
           }));
           setChartData(newChartData);
         }
         
-        if (bt.metrics) {
-          setMetrics(bt.metrics);
+        if (bt.portfolio_total_return_pct !== undefined) {
+          setMetrics({
+            total_return_pct: bt.portfolio_total_return_pct,
+            cagr_pct: bt.portfolio_cagr_pct,
+            max_drawdown_pct: bt.portfolio_max_drawdown_pct,
+            sharpe_ratio: bt.portfolio_sharpe,
+          });
         }
         
         setHasRunSimulation(true);
       } else {
-        console.error("Backtest failed on backend.");
+        const errorJson = await res.json().catch(() => ({}));
+        const errorMsg = errorJson.detail || "Backtest failed on backend.";
+        // We removed console.error here to prevent Next.js from throwing a full-screen dev overlay!
+        alert(`Backtest failed: ${errorMsg}\n\nHint: If you restarted the backend, your session was cleared. Go back to the AI Advisor or Portfolio Builder to generate a new portfolio first!`);
       }
     } catch (e) {
       console.error("Failed to run backtest simulation:", e);
@@ -98,44 +106,7 @@ export default function BacktestPage() {
         </button>
       </div>
 
-      {/* Settings Row */}
-      <div className="bg-white rounded-[18px] border border-slate-200/60 p-6 shadow-soft flex flex-col lg:flex-row items-center gap-8 justify-between">
-        <div className="flex items-center gap-2 shrink-0">
-          <Calendar className="h-6 w-6 text-[#0E8A5A]" />
-          <h3 className="text-[16px] font-extrabold text-[#0F172A]">Historical Configurations</h3>
-        </div>
 
-        <div className="flex flex-1 w-full gap-6">
-          <div className="flex-1 space-y-1.5 max-w-xs">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Start Simulation Year</label>
-            <select
-              value={selectedStartYear}
-              onChange={(e) => setSelectedStartYear(e.target.value)}
-              className="w-full bg-slate-50/50 border border-slate-200/80 rounded-[14px] px-4 py-2.5 text-[13px] font-bold text-[#0F172A] focus:outline-none"
-            >
-              <option value="2016">2016 (Dataset Start)</option>
-            </select>
-          </div>
-
-          <div className="flex-1 space-y-1.5 max-w-xs">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Rebalancing Frequency</label>
-            <select
-              value={selectedFrequency}
-              onChange={(e) => setSelectedFrequency(e.target.value)}
-              className="w-full bg-slate-50/50 border border-slate-200/80 rounded-[14px] px-4 py-2.5 text-[13px] font-bold text-[#0F172A] focus:outline-none"
-            >
-              <option value="Monthly">Monthly Drift Target</option>
-              <option value="Quarterly">Quarterly Sharpe Re-run</option>
-              <option value="Daily">Daily Threshold Trigger</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="bg-[#EEF3FF] border border-blue-200/50 rounded-xl p-3.5 text-[11px] font-semibold text-slate-600 flex items-center gap-2.5 max-w-sm">
-          <Info className="h-4.5 w-4.5 text-blue-500 shrink-0" />
-          <span>Simulates transaction costs of 0.1% per rebalance trade to preserve accuracy.</span>
-        </div>
-      </div>
 
       {/* Main Chart Container */}
       <div className="bg-white rounded-[18px] border border-slate-200/60 p-6 shadow-soft flex flex-col justify-between h-[600px] w-full">

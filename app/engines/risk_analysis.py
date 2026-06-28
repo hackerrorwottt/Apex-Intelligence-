@@ -82,6 +82,34 @@ class RiskAnalysisEngine:
 
         risk_label = self._risk_label(annual_vol)
 
+        # Per-asset risk metrics
+        asset_metrics = {}
+        for ticker in weights_pct.keys():
+            try:
+                df = market_data_engine.get_price_history(ticker)
+                if df is not None and not df.empty:
+                    asset_ret = df["close"].pct_change().dropna()
+                    # Annual volatility
+                    asset_vol = float(asset_ret.std() * np.sqrt(252))
+                    # Beta
+                    asset_beta = 1.0
+                    if benchmark_returns is not None:
+                        align_a = pd.concat([asset_ret, benchmark_returns], axis=1, join="inner").dropna()
+                        align_a.columns = ["asset", "bench"]
+                        if len(align_a) > 30 and align_a["bench"].var() > 0:
+                            cov_a = np.cov(align_a["asset"], align_a["bench"])[0][1]
+                            asset_beta = float(cov_a / align_a["bench"].var())
+                    
+                    asset_metrics[ticker] = {
+                        "volatility_pct": round(asset_vol * 100, 2),
+                        "beta": round(asset_beta, 2)
+                    }
+                else:
+                    asset_metrics[ticker] = {"volatility_pct": 0.0, "beta": 1.0}
+            except Exception as e:
+                logger.warning(f"[Risk] per asset risk failed for {ticker}: {e}")
+                asset_metrics[ticker] = {"volatility_pct": 0.0, "beta": 1.0}
+
         return {
             "sharpe_ratio": round(sharpe, 2),
             "sortino_ratio": round(sortino, 2),
@@ -93,6 +121,7 @@ class RiskAnalysisEngine:
             "max_drawdown_pct": round(max_drawdown * 100, 2),
             "diversification_score": round(diversification_score * 100, 1),
             "risk_label": risk_label,
+            "asset_metrics": asset_metrics,
         }
 
     @staticmethod
