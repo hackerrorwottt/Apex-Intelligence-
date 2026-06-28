@@ -1,0 +1,17 @@
+{
+  "ticker": "ITC.NS",
+  "market_cap": 436405143210.0628,
+  "eps": 146.26718914524287,
+  "revenue": 17423822452.203056,
+  "revenue_growth": 0.24569691443570962,
+  "debt_to_equity": 1.2029875449153973,
+  "operating_cash_flow": 4307039156.625319,
+  "free_cash_flow": 2079044637.4351828,
+  "operating_margin": 0.20785482131484728,
+  "roe": 0.07412080510423533,
+  "sector": "Healthcare",
+  "industry": "Diversified",
+  "pe_ratio": 44.86608041554573,
+  "current_price": null,
+  "source": "synthetic"
+}

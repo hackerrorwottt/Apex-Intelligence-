@@ -1,0 +1,17 @@
+{
+  "ticker": "WIPRO.NS",
+  "market_cap": 1255030172238.1238,
+  "eps": 83.30599448431937,
+  "revenue": 108288835970.44766,
+  "revenue_growth": 0.023063399525655948,
+  "debt_to_equity": 0.7591111445074359,
+  "operating_cash_flow": 24114191967.955303,
+  "free_cash_flow": 7032914347.627709,
+  "operating_margin": 0.29754952420361447,
+  "roe": 0.23912475078027234,
+  "sector": "Technology",
+  "industry": "Diversified",
+  "pe_ratio": 16.1328772235061,
+  "current_price": null,
+  "source": "synthetic"
+}

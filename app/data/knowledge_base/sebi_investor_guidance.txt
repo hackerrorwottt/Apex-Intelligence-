@@ -1,0 +1,25 @@
+SEBI INVESTOR GUIDANCE NOTES (SUMMARY)
+
+Investors should be aware that mutual fund and equity investments are
+subject to market risk, and past performance is not indicative of future
+returns. Before investing, an investor should read all scheme-related
+documents carefully, including the Scheme Information Document (SID) and
+Key Information Memorandum (KIM).
+
+Exit loads may apply if units are redeemed before a specified holding
+period; these are disclosed upfront in the scheme documents and are
+intended to discourage short-term churn that can hurt long-term investors
+in the same scheme.
+
+SEBI requires that risk-o-meters be disclosed for every mutual fund scheme,
+categorizing schemes from "Low" to "Very High" risk based on the
+volatility and credit quality of the underlying portfolio. Investors are
+expected to match their own risk appetite and investment horizon to the
+risk category of the scheme or strategy they choose, rather than chasing
+recent high returns without considering volatility.
+
+Algorithmic and quantitative strategies that rely on historical data and
+statistical models, including machine learning predictions, are not
+guarantees of future performance. Backtested results can be subject to
+overfitting and survivorship bias, and investors should treat backtests as
+illustrative rather than predictive.

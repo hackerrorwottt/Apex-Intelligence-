@@ -1,0 +1,17 @@
+{
+  "ticker": "ICICIBANK.NS",
+  "market_cap": 975778553888.4309,
+  "eps": 202.2759740478612,
+  "revenue": 146488868696.9914,
+  "revenue_growth": 0.007675288032607537,
+  "debt_to_equity": 1.0606576027432326,
+  "operating_cash_flow": 35488630308.0406,
+  "free_cash_flow": 10624001341.950878,
+  "operating_margin": 0.17943581584934523,
+  "roe": 0.2004393434145913,
+  "sector": "Healthcare",
+  "industry": "Diversified",
+  "pe_ratio": 17.340086883632743,
+  "current_price": null,
+  "source": "synthetic"
+}

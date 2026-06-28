@@ -1,0 +1,6 @@
+A comprehensive statistical analysis of chart patterns.
+Key concepts:
+1. Bulkowski statistically ranks patterns based on failure rates and average gains/losses.
+2. High-performing patterns include High and Tight Flags, Head and Shoulders Bottoms, and Ascending Triangles.
+3. Breakouts often pull back to the breakout level (a "throwback" or "pullback") before resuming the trend. This offers a secondary, often safer, entry point.
+4. Volume trends prior to the breakout are critical indicators of the pattern's validity. Decreasing volume during formation and high volume on breakout is ideal.

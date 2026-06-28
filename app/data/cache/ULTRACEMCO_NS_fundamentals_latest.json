@@ -1,0 +1,17 @@
+{
+  "ticker": "ULTRACEMCO.NS",
+  "market_cap": 88921436311.83263,
+  "eps": 205.90116576374655,
+  "revenue": 139539305934.67886,
+  "revenue_growth": -0.03310846370328839,
+  "debt_to_equity": 0.5742487771249474,
+  "operating_cash_flow": 21503185963.981018,
+  "free_cash_flow": 10365879819.55739,
+  "operating_margin": 0.11403195185657836,
+  "roe": 0.24716744108844957,
+  "sector": "Energy",
+  "industry": "Diversified",
+  "pe_ratio": 27.687558745123834,
+  "current_price": null,
+  "source": "synthetic"
+}

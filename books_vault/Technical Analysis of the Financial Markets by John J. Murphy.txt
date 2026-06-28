@@ -1,0 +1,8 @@
+This book is often considered the bible of technical analysis.
+Key concepts:
+1. Market action discounts everything. All known information is already reflected in the price.
+2. Prices move in trends. A trend in motion is more likely to continue than to reverse.
+3. History repeats itself, primarily due to human psychology.
+4. Key tools include support and resistance levels, trendlines, and moving averages.
+5. Volume must confirm the trend. A strong trend is accompanied by rising volume.
+6. Oscillators (like RSI and MACD) are used to identify overbought or oversold conditions.

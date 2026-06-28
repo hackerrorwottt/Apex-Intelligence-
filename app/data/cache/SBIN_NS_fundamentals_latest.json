@@ -1,0 +1,17 @@
+{
+  "ticker": "SBIN.NS",
+  "market_cap": 465593172207.26917,
+  "eps": 216.54651131768955,
+  "revenue": 110491205340.35228,
+  "revenue_growth": 0.22464250348289133,
+  "debt_to_equity": 1.0806875855373321,
+  "operating_cash_flow": 23141248336.134945,
+  "free_cash_flow": 5889662481.438285,
+  "operating_margin": 0.12658134914517286,
+  "roe": 0.21070992308574776,
+  "sector": "Healthcare",
+  "industry": "Diversified",
+  "pe_ratio": 36.6735073974469,
+  "current_price": null,
+  "source": "synthetic"
+}

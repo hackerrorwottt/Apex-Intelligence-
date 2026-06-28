@@ -1,0 +1,17 @@
+{
+  "ticker": "MARUTI.NS",
+  "market_cap": 119286253329.85478,
+  "eps": 111.79292700854622,
+  "revenue": 45918733833.94809,
+  "revenue_growth": 0.12890183948335027,
+  "debt_to_equity": 0.961706505221661,
+  "operating_cash_flow": 7108019450.9189415,
+  "free_cash_flow": 2255891410.904624,
+  "operating_margin": 0.1161567759297002,
+  "roe": 0.08319563626867499,
+  "sector": "Technology",
+  "industry": "Diversified",
+  "pe_ratio": 40.75775241525832,
+  "current_price": null,
+  "source": "synthetic"
+}

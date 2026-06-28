@@ -1,0 +1,17 @@
+{"timestamp":"00:39:26.899","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir '/Users/vedanshsaini/Downloads/quant-backend-fixed/hackathon 2/src/app'"}
+{"timestamp":"00:39:26.901","source":"Server","level":"ERROR","message":"⨯ \"unhandledRejection:\" Error: ENOENT: no such file or directory, scandir '/Users/vedanshsaini/Downloads/quant-backend-fixed/hackathon 2/src/app'"}
+{"timestamp":"00:39:26.901","source":"Server","level":"ERROR","message":"⨯ \"unhandledRejection: \" Error: ENOENT: no such file or directory, scandir '/Users/vedanshsaini/Downloads/quant-backend-fixed/hackathon 2/src/app'"}
+{"timestamp":"00:39:26.905","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir '/Users/vedanshsaini/Downloads/quant-backend-fixed/hackathon 2/src/app'"}
+{"timestamp":"00:39:26.906","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir '/Users/vedanshsaini/Downloads/quant-backend-fixed/hackathon 2/src/app'"}
+{"timestamp":"00:39:26.911","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir '/Users/vedanshsaini/Downloads/quant-backend-fixed/hackathon 2/src/app'"}
+{"timestamp":"00:39:26.911","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir '/Users/vedanshsaini/Downloads/quant-backend-fixed/hackathon 2/src/app'"}
+{"timestamp":"00:39:26.913","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir '/Users/vedanshsaini/Downloads/quant-backend-fixed/hackathon 2/src/app'"}
+{"timestamp":"00:39:26.914","source":"Server","level":"ERROR","message":"⨯ \"unhandledRejection:\" Error: ENOENT: no such file or directory, scandir '/Users/vedanshsaini/Downloads/quant-backend-fixed/hackathon 2/src/app'"}
+{"timestamp":"00:39:26.915","source":"Server","level":"ERROR","message":"⨯ \"unhandledRejection: \" Error: ENOENT: no such file or directory, scandir '/Users/vedanshsaini/Downloads/quant-backend-fixed/hackathon 2/src/app'"}
+{"timestamp":"00:39:26.921","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir '/Users/vedanshsaini/Downloads/quant-backend-fixed/hackathon 2/src/app'"}
+{"timestamp":"00:39:26.921","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir '/Users/vedanshsaini/Downloads/quant-backend-fixed/hackathon 2/src/app'"}
+{"timestamp":"00:39:26.924","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir '/Users/vedanshsaini/Downloads/quant-backend-fixed/hackathon 2/src/app'"}
+{"timestamp":"00:39:26.925","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir '/Users/vedanshsaini/Downloads/quant-backend-fixed/hackathon 2/src/app'"}
+{"timestamp":"00:39:26.930","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir '/Users/vedanshsaini/Downloads/quant-backend-fixed/hackathon 2/src/app'"}
+{"timestamp":"00:39:26.932","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir '/Users/vedanshsaini/Downloads/quant-backend-fixed/hackathon 2/src/app'"}
+{"timestamp":"00:39:26.970","source":"Server","level":"ERROR","message":"⨯ Module not found: Error: Can't resolve 'next-flight-client-entry-loader' in '/Users/vedanshsaini/Downloads/quant-backend-fixed/hackathon 2'"}

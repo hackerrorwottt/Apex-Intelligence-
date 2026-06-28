@@ -1,0 +1,17 @@
+{
+  "ticker": "INFY.NS",
+  "market_cap": 1004550707814.7776,
+  "eps": 72.29280157143678,
+  "revenue": 5686585764.310479,
+  "revenue_growth": 0.17618368337390727,
+  "debt_to_equity": 0.2723208033176785,
+  "operating_cash_flow": 754531814.7251765,
+  "free_cash_flow": 649642208.2754761,
+  "operating_margin": 0.3076822576024485,
+  "roe": 0.24561989643937937,
+  "sector": "Technology",
+  "industry": "Diversified",
+  "pe_ratio": 35.884866961869356,
+  "current_price": null,
+  "source": "synthetic"
+}

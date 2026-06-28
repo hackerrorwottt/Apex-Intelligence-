@@ -1,0 +1,6 @@
+Steve Nison introduced Japanese candlestick charts to the Western world.
+Key concepts:
+1. A candlestick shows the open, high, low, and close. The body represents the open-to-close range, while shadows represent extremes.
+2. Reversal patterns: Doji (indecision), Hammer (bullish reversal), Shooting Star (bearish reversal), Engulfing Patterns (strong momentum shifts).
+3. Candlesticks should not be used in isolation. They must be combined with Western technical indicators (like support/resistance or moving averages).
+4. The size of the real body indicates the strength of the buying or selling pressure.

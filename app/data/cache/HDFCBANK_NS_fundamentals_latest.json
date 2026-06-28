@@ -1,0 +1,17 @@
+{
+  "ticker": "HDFCBANK.NS",
+  "market_cap": 621191690615.4418,
+  "eps": 79.1276780993568,
+  "revenue": 69211030016.27126,
+  "revenue_growth": -0.04757569656668733,
+  "debt_to_equity": 1.0057931575768928,
+  "operating_cash_flow": 10097857135.43116,
+  "free_cash_flow": 12320998858.008705,
+  "operating_margin": 0.27193955770073763,
+  "roe": 0.3334616034193092,
+  "sector": "Healthcare",
+  "industry": "Diversified",
+  "pe_ratio": 15.641116227410292,
+  "current_price": null,
+  "source": "synthetic"
+}

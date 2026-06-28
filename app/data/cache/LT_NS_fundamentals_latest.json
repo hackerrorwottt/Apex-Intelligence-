@@ -1,0 +1,17 @@
+{
+  "ticker": "LT.NS",
+  "market_cap": 856924796719.2866,
+  "eps": 87.32068135930811,
+  "revenue": 137413725677.64597,
+  "revenue_growth": 0.22652877033950886,
+  "debt_to_equity": 0.7428659823231314,
+  "operating_cash_flow": 15471018594.168604,
+  "free_cash_flow": 12110695325.611662,
+  "operating_margin": 0.237838266454252,
+  "roe": 0.08522862061646538,
+  "sector": "Energy",
+  "industry": "Diversified",
+  "pe_ratio": 21.008959451443765,
+  "current_price": null,
+  "source": "synthetic"
+}

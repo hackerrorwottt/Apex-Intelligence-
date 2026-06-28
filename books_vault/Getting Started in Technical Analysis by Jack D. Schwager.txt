@@ -1,0 +1,7 @@
+Schwager provides a practical guide to technical trading.
+Key concepts:
+1. Understand the difference between fundamental analysis (what should happen) and technical analysis (what is actually happening).
+2. Use chart patterns like Head and Shoulders, Triangles, and Double Tops/Bottoms to identify breakouts or reversals.
+3. Always use stop-loss orders to protect capital. The placement of a stop should be based on technical levels, not arbitrary percentages.
+4. Risk management is more important than the entry signal itself.
+5. Don't trade in low-liquidity environments or highly erratic markets without a clear edge.

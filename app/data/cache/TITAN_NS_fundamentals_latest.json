@@ -1,0 +1,17 @@
+{
+  "ticker": "TITAN.NS",
+  "market_cap": 1455458010140.3977,
+  "eps": 217.42619423405904,
+  "revenue": 114381715807.65305,
+  "revenue_growth": -0.029567350191046022,
+  "debt_to_equity": 0.8928522264399607,
+  "operating_cash_flow": 21998218313.86006,
+  "free_cash_flow": 6397093993.124288,
+  "operating_margin": 0.2665794968972562,
+  "roe": 0.29333897219190486,
+  "sector": "Technology",
+  "industry": "Diversified",
+  "pe_ratio": 14.908289104763078,
+  "current_price": null,
+  "source": "synthetic"
+}

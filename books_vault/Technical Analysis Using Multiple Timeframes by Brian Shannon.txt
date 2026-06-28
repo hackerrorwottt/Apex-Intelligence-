@@ -1,0 +1,7 @@
+Brian Shannon emphasizes the importance of analyzing different time horizons.
+Key concepts:
+1. The market structure consists of 4 phases: Accumulation, Markup, Distribution, and Markdown.
+2. Use multiple timeframes to increase the probability of success. A larger timeframe dictates the overall trend, while a smaller timeframe is used for precise entry and exit.
+3. Never trade against the primary trend of the higher timeframe.
+4. The Volume Weighted Average Price (VWAP) is a critical institutional tool to measure the true average price.
+5. Only buy pullbacks in an established uptrend, never buy a stock in a markdown phase.

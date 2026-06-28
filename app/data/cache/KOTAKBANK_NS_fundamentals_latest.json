@@ -1,0 +1,17 @@
+{
+  "ticker": "KOTAKBANK.NS",
+  "market_cap": 575670534350.312,
+  "eps": 90.81695594128645,
+  "revenue": 25783537491.144672,
+  "revenue_growth": 0.012533680444619236,
+  "debt_to_equity": 0.3146603886941053,
+  "operating_cash_flow": 6310980691.962891,
+  "free_cash_flow": 2920521224.152871,
+  "operating_margin": 0.30527744050428435,
+  "roe": 0.26435160237251987,
+  "sector": "Consumer",
+  "industry": "Diversified",
+  "pe_ratio": 24.51438470151699,
+  "current_price": null,
+  "source": "synthetic"
+}

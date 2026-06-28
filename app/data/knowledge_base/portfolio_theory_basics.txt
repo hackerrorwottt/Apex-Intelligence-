@@ -1,0 +1,25 @@
+PORTFOLIO DIVERSIFICATION AND RISK MANAGEMENT
+
+Diversification reduces unsystematic risk by spreading capital across assets
+whose returns are not perfectly correlated. When one holding underperforms,
+gains elsewhere in the portfolio can offset the loss, smoothing overall
+returns without necessarily lowering expected return.
+
+Gold and gold ETFs are commonly used as a hedge against equity market
+drawdowns and currency depreciation. Gold tends to have low or negative
+correlation with equities during periods of market stress, which makes a
+small allocation to a Gold ETF useful for reducing portfolio volatility,
+even though gold itself does not generate cash flow or earnings growth.
+
+Modern Portfolio Theory, introduced by Harry Markowitz, formalizes this
+intuition: for a given level of expected return, there exists a combination
+of assets that minimizes portfolio variance. Portfolios lying on the
+Efficient Frontier offer the best possible expected return for their level
+of risk. The Maximum Sharpe Ratio portfolio is the point on this frontier
+that maximizes risk-adjusted return relative to a risk-free rate.
+
+A well-diversified equity portfolio for a moderate-risk investor typically
+spans multiple sectors (technology, financials, energy, consumer, and
+industrials) rather than concentrating in a single industry, since sector-
+specific shocks (regulatory changes, commodity price swings, demand cycles)
+affect different industries at different times.
